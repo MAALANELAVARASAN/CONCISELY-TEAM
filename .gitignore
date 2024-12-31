@@ -1,1 +1,7 @@
 .idea
+
+#ignore python cache and pyc files
+__pycache__/*
+
+#ignore upload directory
+uploads/*
