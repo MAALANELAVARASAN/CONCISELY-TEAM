@@ -1,0 +1,16 @@
+[tool.poetry]
+name = "concisely"
+version = "0.1.0"
+description = "A simple flask app to summarise books using AI"
+authors = ["Catalyst18 <etsant.18@gmail.com>"]
+license = "MIT"
+readme = "README.md"
+
+[tool.poetry.dependencies]
+python = "^3.10"
+flask = "^3.1.0"
+
+
+[build-system]
+requires = ["poetry-core"]
+build-backend = "poetry.core.masonry.api"
