@@ -1,5 +1,7 @@
 from flask import Flask,render_template,request, redirect, url_for
 import os
+print("Static folder path:", os.path.join(os.getcwd(), 'static'))
+print("CSS file path:", os.path.join(os.getcwd(), 'static/css/style.css'))
 app=Flask(__name__)
 
 # Set the folder where uploaded files will be stored
