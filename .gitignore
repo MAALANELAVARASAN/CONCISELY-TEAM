@@ -2,6 +2,8 @@
 
 #ignore python cache and pyc files
 __pycache__/*
+core/__pycache__/*
 
 #ignore upload directory
 uploads/*
+/*.docx
