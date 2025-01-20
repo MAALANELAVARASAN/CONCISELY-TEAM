@@ -1,8 +1,10 @@
 from flask import Flask, render_template, request, redirect, url_for
 from pypdf import PdfReader
 import os
-import docx
-from docx import Document
+from spire.doc import *
+from spire.doc.common import *
+from spire.presentation import *
+from spire.presentation.common import *
 
 app = Flask(__name__)
 
@@ -11,7 +13,8 @@ UPLOAD_FOLDER = 'uploads'
 app.config['UPLOAD_FOLDER'] = UPLOAD_FOLDER
 
 # Allowed file extensions
-ALLOWED_EXTENSIONS = {'txt', 'pdf', 'png', 'jpg', 'jpeg', 'gif'}
+ALLOWED_EXTENSIONS = {'txt', 'pdf', 'png', 'jpg', 'jpeg', 'gif', 'docx','pptx'}
+
 
 # Function to check if the file type is allowed
 def allowed_file(filename):
@@ -24,7 +27,6 @@ os.makedirs(UPLOAD_FOLDER, exist_ok=True)
 @app.route('/home')
 def home():
     return render_template('index.html')
-
 @app.route('/upload', methods=['POST'])
 def upload_file():
     if 'file' not in request.files:
@@ -38,7 +40,7 @@ def upload_file():
         filename = os.path.join(app.config['UPLOAD_FOLDER'], file.filename)
         file.save(filename)
         
-        # Extract text from PDF
+        # Handle PDF files
         if filename.endswith('.pdf'):
             try:
                 reader = PdfReader(filename)
@@ -48,31 +50,54 @@ def upload_file():
                 return f"File uploaded and extracted successfully: {filename}<br>Extracted Text:<br>{text}"
             except Exception as e:
                 return f"Error reading PDF: {str(e)}", 500
-        else:
-            return f"File uploaded successfully: {filename}"
-    else:
-        return 'Invalid file type', 400
 
-   
+        # Handle DOCX files
+        elif filename.endswith('.docx'):
+            try:
+                from docx import Document  # Import here if not at the top
+                doc = Document(filename)
+                text = '\n'.join([paragraph.text for paragraph in doc.paragraphs])
+                return f"File uploaded and extracted successfully: {filename}<br>Extracted Text:<br>{text}"
+            except Exception as e:
+                return f"Error reading DOCX: {str(e)}", 500
+            
+        # Handle ppt files 
+        elif filename.endswith('.pptx'):
+            try:
+                presentation = Presentation()
+                presentation.LoadFromFile(filename)
+                text = []
+                for slide in presentation.Slides:
+                    for shape in slide.Shapes:
+                         if isinstance(shape, IAutoShape):
+                             for paragraph in (shape if isinstance(shape, IAutoShape) else None).TextFrame.Paragraphs:
+                                 text.append(paragraph.Text)
+                output_file = os.path.join(app.config['UPLOAD_FOLDER'], 'ExtractAllText.txt')
+                with open(output_file, 'w', encoding='utf-8') as f:
+                    for line in text:
+                        f.write(line + '\n')
 
-# Create a new Word document
-        doc = Document()
-        doc.add_heading('Sample Title', level=1)
-        doc.add_paragraph('This is a paragraph in the Word document.')
-
-# Save the document
-        doc.save('sample.docx')
-    
+                presentation.Dispose()
+                return f"File uploaded and text extracted successfully: {filename}<br>Extracted Text saved to: {text}"
 
         
 
+                    
+            except Exception as e:
+                return f"Error reading PPTX: {str(e)}", 500
+
+                
 
 
+        # If not a recognized type
+        else:
+            return f"File uploaded successfully: {filename}"
 
+    return 'Invalid file type', 400
 
-@app.route('/about')
-def about():
-    return render_template('about.html')
+        
 
 if __name__ == '__main__':
     app.run(debug=True)
+
+
