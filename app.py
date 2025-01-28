@@ -5,6 +5,10 @@ from spire.doc import *
 from spire.doc.common import *
 from spire.presentation import *
 from spire.presentation.common import *
+import nltk 
+from nltk.corpus import stopwords 
+from nltk.tokenize import word_tokenize, sent_tokenize 
+
 
 app = Flask(__name__)
 
