@@ -1,14 +1,17 @@
-// Wait for the DOM to be fully loaded before attaching the event listener
-document.addEventListener('DOMContentLoaded', function() {
-    // Get the form element by ID
-    const form = document.getElementById('myForm');
+// Function to speak text
+function speakText(text) {
+    if ('speechSynthesis' in window) {
+        const utterance = new SpeechSynthesisUtterance(text);
+        utterance.lang = 'en-US'; // Set language (change dynamically based on translation language)
+        window.speechSynthesis.speak(utterance);
+    } else {
+        alert('Your browser does not support text-to-speech.');
+    }
+}
 
-    // Attach an onsubmit event to the form
-    form.addEventListener('submit', function(event) {
-        // Prevent the form from submitting normally
-        event.preventDefault();
-
-        // Redirect to another page
-        window.location.href = "templates/about.html";
-    });
+// Add event listener to the speaker button
+document.getElementById('speakerButton').addEventListener('click', function () {
+    // Replace this with the actual translated text
+    const translatedText = "This is the translated text."; // You can dynamically fetch this from your application logic
+    speakText(translatedText); // Call the speakText function
 });
